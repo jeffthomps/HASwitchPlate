@@ -1,8 +1,8 @@
 # Home Assistant integration
 
-Configuring Home Assistant for the HASP requires making some basic changes to your configuration and downloading the packages to your installation.  The procedure will be a little different if you're running Hass.io, so [skip to that section](#hassio) or continue below for a standard Home Assistant installation (hassbian, venv, whatever).
+Configuring Home Assistant for the HASP requires making some basic changes to your configuration and downloading the packages to your installation.  The procedure will be a little different if you're running Hass.io, so [skip to that section](#hass-io-home-assistant-installation) or continue below for a standard Home Assistant installation (hassbian, venv, whatever).
 
-## Automatic Home Assistant installation
+## Standard Home Assistant installation
 
 For standard Home Assistant installations you can run an [automatic deployment script](../Home_Assistant/deployhasp.sh) which will attempt to make the required changes to your Home Assistant installation to support the HASP and a [Home Assistant Packages](../Home_Assistant/packages) bundle for each HASP device which you deploy.  If you'd rather make all the changes yourself, jump to the [Manual Home Assistant installation section](#manual-home-assistant-installation).
 
@@ -18,9 +18,13 @@ You will be prompted for a device name and the script will do the rest.  Once it
 
 ---
 
-## Hass.io
+## Hass.io Home Assistant installation
 
-If you're running [Hass.io](https://www.home-assistant.io/hassio/), you'll need to install and configure the [`Mosquitto broker`](https://www.home-assistant.io/addons/mosquitto/) and [`SSH server`](https://www.home-assistant.io/addons/ssh/) add-ons from the default repository.  Be sure to follow the configuration instructions provided for both add-ons.  Once those are installed, configured, and started, you can ssh to your hass.io installation and execute the following commands:
+If you're running [Hass.io](https://www.home-assistant.io/hassio/), you'll need to install and configure the [`Mosquitto broker`](https://www.home-assistant.io/addons/mosquitto/) and [`SSH server`](https://www.home-assistant.io/addons/ssh/) add-ons from the default repository.  Be sure to follow the configuration instructions provided for both add-ons.
+
+The mosquitto broker package requires a username and password.  Be sure to configure the "MQTT User" and "MQTT Password" on the HASP with a valid user from your Home Assistant configuration, and set the broker to the IP address of your Hass.io installation.
+
+Once those are installed, configured, and started, you can ssh to your hass.io installation and execute the following commands:
 
 ```bash
 cd /config
@@ -28,7 +32,9 @@ apk add tar wget
 bash <(wget -qO- -o /dev/null https://raw.githubusercontent.com/aderusha/HASwitchPlate/master/Home_Assistant/deployhasp.sh)
 ```
 
-You will be prompted for a device name and the script will do the rest.  Once it completes, restart your Home Assistant service to apply changes (`Configuration` > `General` > `Server Management` > `RESTART`) and then continue to the [First time setup](#first-time-setup) section below to initialize your environment.
+You will be prompted for a device name and the script will do the rest.  Once it completes, restart your Home Assistant service to apply changes (`Configuration` > `Server Controls` > `Server management` > `RESTART`) and then continue to the [First time setup](#first-time-setup) section below to initialize your environment.
+
+[Check out this video](https://youtu.be/wbtVfuDKaM4) for the complete process of starting up a new Hass.io installation, configuring the required add-ons, and setting up your first HASP device.
 
 ---
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ###############################################################################
-# deployhasp.sh - Configure Home Assistnat for HASP integration, then download
+# deployhasp.sh - Configure Home Assistant for HASP integration, then download
 # the latest HASP automation package and modify for the provided device name
 ###############################################################################
 
@@ -68,7 +68,20 @@ then
     echo "  packages: !include_dir_named packages"
     echo "==========================================================================="
   else
-    sed -i 's/^homeassistant:.*/homeassistant:\n  packages: !include_dir_named packages/' configuration.yaml
+    if grep "^homeassistant:" configuration.yaml > /dev/null
+    then
+      sed -i 's/^homeassistant:.*/homeassistant:\n  packages: !include_dir_named packages/' configuration.yaml
+    elif grep "^default_config:" configuration.yaml > /dev/null
+    then
+      sed -i 's/^default_config:.*/default_config:\nhomeassistant:\n  packages: !include_dir_named packages/' configuration.yaml
+    else
+      echo "==========================================================================="
+      echo "WARNING: Could not add package declaration to 'configuration.yaml'."
+      echo "         Please add the following statement to your configuration:"
+      echo "default_config:"
+      echo "  packages: !include_dir_named packages"
+      echo "==========================================================================="
+    fi
   fi
 fi
 
@@ -81,31 +94,18 @@ fi
 # Warn if MQTT is not enabled
 if ! grep "^mqtt:" configuration.yaml > /dev/null
 then
-  echo "==========================================================================="
-  echo "WARNING: Required MQTT broker configuration not setup in configuration.yaml"
-  echo "HASP WILL NOT FUNCTION UNTIL THIS HAS BEEN CONFIGURED!  The embedded option"
-  echo "offered my Home Assistant is buggy, so deploying Mosquitto is recommended."
-  echo ""
-  echo "Home Assistant MQTT configuration: https://www.home-assistant.io/docs/mqtt/broker/#run-your-own"
-  echo "Install Mosquitto: sudo apt-get install mosquitto mosquitto-clients"
-  echo "==========================================================================="
-fi
-
-# Hass has a bug where packaged automations don't work unless you have at least one
-# automation manually created outside of the packages.  Attempt to test for that and
-# create a dummy automation if an empty automations.yaml file is found.
-if grep "^automation: \!include automations.yaml" configuration.yaml > /dev/null
-then
-  if [ -f automations.yaml ]
+  if ! grep '"domain": "mqtt"' .storage/core.config_entries > /dev/null
   then
-    if [[ $(< automations.yaml) == "[]" ]]
-    then
-      echo "WARNING: empty automations.yaml found, creating DUMMY automation for package compatibility"
-      echo "- action: []" > automations.yaml
-      echo "  id: DUMMY" >> automations.yaml
-      echo "  alias: DUMMY Can Be Deleted After First Automation Has Been Added" >> automations.yaml
-      echo "  trigger: []" >> automations.yaml
-    fi
+    echo "==========================================================================="
+    echo "WARNING: Required MQTT broker configuration not setup in configuration.yaml"
+    echo "         or added under Configuration > Integrations."
+    echo ""
+    echo "HASP WILL NOT FUNCTION UNTIL THIS HAS BEEN CONFIGURED!  The embedded option"
+    echo "offered my Home Assistant is buggy, so deploying Mosquitto is recommended."
+    echo ""
+    echo "Home Assistant MQTT configuration: https://www.home-assistant.io/docs/mqtt/broker/#run-your-own"
+    echo "Install Mosquitto: sudo apt-get install mosquitto mosquitto-clients"
+    echo "==========================================================================="
   fi
 fi
 
@@ -123,6 +123,7 @@ then
   # rename text in contents of files
   sed -i -- 's/plate01/'"$hasp_device"'/g' $hasp_temp_dir/packages/plate01/hasp_plate01_*.yaml
   sed -i -- 's/plate01/'"$hasp_device"'/g' $hasp_temp_dir/hasp-examples/plate01/hasp_plate01_*.yaml
+  sed -i -- 's/plate01/'"$hasp_device"'/g' $hasp_temp_dir/packages/hasp_plate01_lovelace.txt
 
   # rename files and folder - thanks to @cloggedDrain for this loop!
   mkdir $hasp_temp_dir/packages/$hasp_device
@@ -156,6 +157,8 @@ then
     fi
   done
   rm -rf $hasp_temp_dir/hasp-examples/plate01
+  # rename the lovelace UI file
+  mv $hasp_temp_dir/packages/hasp_plate01_lovelace.txt $hasp_temp_dir/packages/hasp_${hasp_device}_lovelace.txt
 fi
 
 # Check to see if the target directories already exist
@@ -193,3 +196,6 @@ fi
 
 echo "==========================================================================="
 echo "SUCCESS! Restart Home Assistant to enable HASP device $hasp_device"
+echo "Check the file packages/hasp_${hasp_device}_lovelace.txt for a set of"
+echo "basic Lovelace UI elements you can include in your configuration"
+echo "to manage the new device."

@@ -67,52 +67,52 @@ input_text:
 input_number:
   hasp_plate01_pagebutton1page:
     name: plate01 Page 1 Page
-    icon: mdi:format-list-numbered
+    icon: mdi:numeric
     min: 0
     max: 9
     step: 1
   hasp_plate01_pagebutton2page:
     name: plate01 Page 2 Page
-    icon: mdi:format-list-numbered
+    icon: mdi:numeric
     min: 0
     max: 9
     step: 1
   hasp_plate01_pagebutton3page:
     name: plate01 Page 3 Page
-    icon: mdi:format-list-numbered
+    icon: mdi:numeric
     min: 0
     max: 9
     step: 1
   hasp_plate01_activepage:
     name: plate01 Active Page
-    icon: mdi:format-list-numbered
+    icon: mdi:numeric
     min: 0
     max: 9
     step: 1
   hasp_plate01_alarmcode1:
     name: plate01 AlarmCode1
-    icon: mdi:format-list-numbered
+    icon: mdi:numeric
     min: -1
     max: 9
     step: 1
     initial: -1
   hasp_plate01_alarmcode2:
     name: plate01 AlarmCode2
-    icon: mdi:format-list-numbered
+    icon: mdi:numeric
     min: -1
     max: 9
     step: 1
     initial: -1
   hasp_plate01_alarmcode3:
     name: plate01 AlarmCode3
-    icon: mdi:format-list-numbered
+    icon: mdi:numeric
     min: -1
     max: 9
     step: 1
     initial: -1
   hasp_plate01_alarmcode4:
     name: plate01 AlarmCode4
-    icon: mdi:format-list-numbered
+    icon: mdi:numeric
     min: -1
     max: 9
     step: 1
@@ -121,17 +121,15 @@ input_number:
 group:
   plate01:
     name: plate01
-    view: yes
     entities:
       - binary_sensor.plate01_connected
-      - sensor.plate01_sensor
+      - sensor.plate01_status
       - light.plate01_backlight
       - group.plate01_pageselect
       - group.plate01_colors
       - group.plate01_automations
   plate01_pageselect:
     name: plate01 Page Selection
-    view: no
     entities:
       - input_number.hasp_plate01_activepage
       - input_number.hasp_plate01_pagebutton1page
@@ -142,7 +140,6 @@ group:
       - input_text.hasp_plate01_pagebutton3label
   plate01_automations:
     name: plate01 automations
-    view: no
     entities:
       - automation.hasp_plate01_00_firsttimesetup
 
